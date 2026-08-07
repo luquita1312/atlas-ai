@@ -10,3 +10,20 @@ __pycache__/
 
 # VS Code
 .vscode/
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Environment variables
+.env
+
+# Datasets
+datasets/raw/*
+datasets/processed/*
+
+# Generated media
+*.mp3
+*.mp4
+*.wav
+*.m4a
