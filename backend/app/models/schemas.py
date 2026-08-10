@@ -10,4 +10,10 @@ class TranscriptSegment(BaseModel):
 class TranscriptResult(BaseModel):
     language: str
     segments: list[TranscriptSegment]
+
+class ClipCandidate(BaseModel):
+    start: float
+    end: float
+    text: str
+    score: float
     
