@@ -1,5 +1,5 @@
 from .base_agent import BaseAgent
-from .content_analyzer import ContentAnalyzer
+from .rule_content_analyzer import RuleContentAnalyzer
 from ..models.schemas import ClipCandidate
 
 
@@ -7,7 +7,7 @@ class ViralAgent(BaseAgent):
 
     def __init__(self, name: str = "ViralAgent"):
         super().__init__(name)
-        self.analyzer = ContentAnalyzer()
+        self.analyzer = RuleContentAnalyzer()
 
     def run(self, candidates: list[ClipCandidate]) -> list[ClipCandidate]:
         scored_candidates = []

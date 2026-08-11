@@ -1,7 +1,8 @@
+from .content_analyzer_base import ContentAnalyzerBase
 from ..models.schemas import ContentAnalysis
 
 
-class ContentAnalyzer:
+class RuleContentAnalyzer(ContentAnalyzerBase):
 
     def analyze(self, text: str) -> ContentAnalysis:
         text_lower = text.lower()
@@ -80,4 +81,4 @@ class ContentAnalyzer:
             information_value=information_value,
             emotional_intensity=emotional_intensity,
         )
-    
+
