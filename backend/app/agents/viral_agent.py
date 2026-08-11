@@ -13,39 +13,82 @@ class ViralAgent(BaseAgent):
         for candidate in candidates:
             duration = candidate.end - candidate.start
             text = candidate.text.strip()
+            text_lower = text.lower()
 
-            score = 0.0
+            # Scores individuales
+            duration_score = 0.0
+            content_score = 0.0
+            hook_score = 0.0
+            curiosity_score = 0.0
+            value_score = 0.0
 
-            # Duración adecuada para un Short
-            if 15 <= duration <= 60:
-                score += 0.3
+            # 1. Duración
+            if 15 <= duration <= 45:
+                duration_score = 0.20
+            elif 45 < duration <= 60:
+                duration_score = 0.10
 
-            # Suficiente contenido
-            if len(text.split()) >= 20:
-                score += 0.2
+            # 2. Cantidad de contenido
+            word_count = len(text.split())
 
-            # Palabras que pueden indicar un hook
+            if 25 <= word_count <= 100:
+                content_score = 0.15
+            elif word_count > 100:
+                content_score = 0.05
+
+            # 3. Hook
             hook_words = [
                 "cómo",
                 "por qué",
-                "secreto",
-                "importante",
+                "sabías",
                 "nunca",
                 "error",
-                "problema",
-                "mejor",
-                "peor",
+                "secreto",
+                "importante",
                 "sorprendente",
             ]
 
-            text_lower = text.lower()
-
             if any(word in text_lower for word in hook_words):
-                score += 0.3
+                hook_score = 0.25
 
-            # Penalizamos clips demasiado cortos
+            # 4. Curiosidad
+            curiosity_phrases = [
+                "pero",
+                "sin embargo",
+                "la razón",
+                "el problema",
+                "lo que",
+                "resulta que",
+            ]
+
+            if any(phrase in text_lower for phrase in curiosity_phrases):
+                curiosity_score = 0.20
+
+            # 5. Valor informativo
+            value_words = [
+                "porque",
+                "significa",
+                "explica",
+                "permite",
+                "funciona",
+                "importante",
+            ]
+
+            if any(word in text_lower for word in value_words):
+                value_score = 0.10
+
+            # Score total
+            score = (
+                duration_score
+                + content_score
+                + hook_score
+                + curiosity_score
+                + value_score
+            )
+
+            # Penalización por clips demasiado cortos
             if duration < 10:
-                score -= 0.2
+                score -= 0.20
 
             score = max(0.0, min(score, 1.0))
 
@@ -55,6 +98,11 @@ class ViralAgent(BaseAgent):
                     end=candidate.end,
                     text=text,
                     score=score,
+                    hook_score=hook_score,
+                    curiosity_score=curiosity_score,
+                    value_score=value_score,
+                    duration_score=duration_score,
+                    content_score=content_score,
                 )
             )
 
@@ -64,3 +112,4 @@ class ViralAgent(BaseAgent):
         )
 
         return scored_candidates
+
