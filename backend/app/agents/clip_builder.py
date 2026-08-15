@@ -7,11 +7,11 @@ class ClipBuilder:
         self,
         min_duration: float = 15.0,
         max_duration: float = 60.0,
-        step: float = 5.0,
+        target_durations: tuple[float, ...] = (20.0, 30.0, 45.0, 60.0),
     ):
         self.min_duration = min_duration
         self.max_duration = max_duration
-        self.step = step
+        self.target_durations = target_durations
 
     def build(self, transcript: TranscriptResult) -> list[ClipCandidate]:
         candidates = []
@@ -21,13 +21,11 @@ class ClipBuilder:
         if not segments:
             return candidates
 
-        total_duration = segments[-1].end
+        for start_index, start_segment in enumerate(segments):
 
-        start_time = segments[0].start
+            start_time = start_segment.start
 
-        while start_time < total_duration:
-
-            for target_duration in [20.0, 30.0, 45.0, 60.0]:
+            for target_duration in self.target_durations:
 
                 if target_duration < self.min_duration:
                     continue
@@ -37,12 +35,14 @@ class ClipBuilder:
 
                 target_end = start_time + target_duration
 
-                matching_segments = [
-                    segment
-                    for segment in segments
-                    if segment.start >= start_time
-                    and segment.end <= target_end
-                ]
+                matching_segments = []
+
+                for segment in segments[start_index:]:
+
+                    if segment.end > target_end:
+                        break
+
+                    matching_segments.append(segment)
 
                 if not matching_segments:
                     continue
@@ -60,7 +60,11 @@ class ClipBuilder:
                 text = " ".join(
                     segment.text.strip()
                     for segment in matching_segments
+                    if segment.text.strip()
                 )
+
+                if not text:
+                    continue
 
                 candidates.append(
                     ClipCandidate(
@@ -70,7 +74,5 @@ class ClipBuilder:
                         score=0.0,
                     )
                 )
-
-            start_time += self.step
 
         return candidates
