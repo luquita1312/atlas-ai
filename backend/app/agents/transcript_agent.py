@@ -9,7 +9,7 @@ class TranscriptAgent(BaseAgent):
     def __init__(
         self,
         name: str = "TranscriptAgent",
-        model_size: str = "tiny"
+        model_size: str = "small"
     ):
         super().__init__(name)
 
@@ -23,7 +23,10 @@ class TranscriptAgent(BaseAgent):
 
         segments, info = self.model.transcribe(
             input_data,
-            beam_size=5
+            language="es",
+            beam_size=5,
+            vad_filter=True,
+            condition_on_previous_text=True,
         )
 
         transcript_segments = [
